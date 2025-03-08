@@ -1,23 +1,12 @@
-// firebase.js
-import admin from "firebase-admin";
-import fs from "fs";
+// config/firebase.js
+const admin = require('firebase-admin');
+require('dotenv').config(); // Make sure dotenv is configured to read from .env
 
-// Read and parse the service account key from JSON file
-const serviceAccount = JSON.parse(
-  fs.readFileSync("./config/firebaseServiceAccountKey.json", "utf-8")
-);
+// Initialize Firebase Admin SDK with service account credentials from .env file
+admin.initializeApp({
+  credential: admin.credential.cert(process.env.FIREBASE_SERVICE_ACCOUNT_KEY),
+});
 
-// Fix the private key formatting by replacing \\n with \n
-serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, "\n");
+const db = admin.firestore(); // Firestore reference
 
-// Initialize Firebase Admin SDK if not already initialized
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    databaseURL: process.env.FIREBASE_DATABASE_URL,
-  });
-} else {
-  admin.app();
-}
-
-export default admin;
+module.exports = db; // Export Firestore reference to use in other files

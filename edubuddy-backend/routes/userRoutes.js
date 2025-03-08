@@ -1,43 +1,46 @@
-import express from 'express';
-import admin from '../config/firebase.js';
-
+// routes/userRoutes.js
+const express = require('express');
 const router = express.Router();
+const authService = require('../services/authService');
 
-// ✅ Signup Route with Firebase Admin SDK
+// POST route for signup
 router.post('/signup', async (req, res) => {
   const { email, password } = req.body;
   try {
-    // Check if the user already exists
-    const existingUser = await admin.auth().getUserByEmail(email).catch(() => null);
-    if (existingUser) {
-      return res.status(400).json({ message: 'An account with this email already exists.' });
+    const result = await authService.signup(email, password);
+    if (result.success) {
+      res.status(200).json(result);
+    } else {
+      res.status(400).json({ error: result.error });
     }
-
-    // Create a new user in Firebase
-    const userRecord = await admin.auth().createUser({
-      email,
-      password,
-    });
-
-    res.status(201).json({ message: 'User created successfully', uid: userRecord.uid });
   } catch (error) {
-    console.error('Error creating user:', error);
-    res.status(500).json({ message: 'Error creating user', error: error.message });
+    res.status(500).json({ error: 'Server error occurred during signup.' });
   }
 });
 
-// 🚫⚠️ Login Route - Server-side password validation is not possible with Firebase Admin SDK
+// POST route for login
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
-
   try {
-    // With Firebase Admin, you cannot verify email and password directly.
-    // This should be handled on the client-side using the Firebase Authentication SDK.
-    return res.status(400).json({ message: 'Server-side email/password login is not supported. Please use client-side Firebase Authentication.' });
+    const result = await authService.login(email, password);
+    if (result.success) {
+      res.status(200).json(result);
+    } else {
+      res.status(400).json({ error: result.error });
+    }
   } catch (error) {
-    console.error('Error logging in:', error);
-    res.status(500).json({ message: 'Error logging in', error: error.message });
+    res.status(500).json({ error: 'Server error occurred during login.' });
   }
 });
 
-export default router;
+// POST route for logout (For Sessions)
+router.post('/logout', (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      return res.status(500).json({ error: 'Failed to log out.' });
+    }
+    res.status(200).json({ message: 'Logged out successfully' });
+  });
+});
+
+module.exports = router;

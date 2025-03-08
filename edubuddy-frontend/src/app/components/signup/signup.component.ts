@@ -28,7 +28,7 @@ export class SignupComponent {
     if (this.signupForm.valid) {
       const { email, password } = this.signupForm.value;
 
-      // Call the signup method from AuthService
+      // Call the signup method from AuthService (backend request)
       this.authService.signup(email, password).subscribe({
         next: () => {
           // Clear the error message upon successful signup

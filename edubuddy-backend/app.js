@@ -1,33 +1,35 @@
 // app.js
-import express from "express";
-import dotenv from "dotenv";
-import cors from "cors"; 
-import userRoutes from "./routes/userRoutes.js";
-
-dotenv.config();
+const express = require('express');
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const session = require('express-session'); // Import express-session for session handling
+const userRoutes = require('./routes/userRoutes'); // Import user routes
+require('dotenv').config(); // Load environment variables from .env
 
 const app = express();
-const PORT = process.env.PORT || 5000;
 
-app.use(express.json());
+// Middleware
+app.use(cors());
+app.use(bodyParser.json()); // Parse JSON request bodies
 
-// Enable CORS with specific frontend origin
-app.use(cors({
-    origin: 'http://localhost:4200', 
-    methods: 'GET,POST,PUT,DELETE',
-    allowedHeaders: 'Content-Type,Authorization',
-    credentials: true
+// Set up express-session middleware before your routes
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'your-secret-key',  // Use a strong secret key here
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: false }  // Set secure to true in production with HTTPS
 }));
 
-// Use the user routes
-app.use("/api/users", userRoutes);
+// Use user routes
+app.use('/api/users', userRoutes); // Prefix all user routes with /api/users
 
-// Root endpoint
-app.get("/", (req, res) => {
-  res.send("EduBuddy Backend is Running");
+// Root route for health check
+app.get('/', (req, res) => {
+  res.status(200).send('Server is running!');
 });
 
 // Start server
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });

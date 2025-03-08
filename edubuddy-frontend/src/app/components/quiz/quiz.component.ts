@@ -44,7 +44,6 @@ export class QuizComponent {
     this.correctAnswersCount = this.selectedAnswers.filter((answer, index) => 
       answer === this.quizzes[index].correct_answer
     ).length;
-    
     this.showResults = true;
   }
 
@@ -63,8 +62,14 @@ export class QuizComponent {
 
   // Logout method
   logout(): void {
-    this.authService.logout().subscribe(() => {
-      this.router.navigate(['/login']);  // Redirect to login after logout
+    this.authService.logout().subscribe({
+      next: () => {
+        // After logging out, navigate to the login page
+        this.router.navigate(['/login']);
+      },
+      error: (err) => {
+        console.error('Logout failed', err);
+      }
     });
   }
 }

@@ -1,116 +1,77 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { Auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from '@angular/fire/auth';
+import { HttpClient } from '@angular/common/http';  // Import HttpClient to make API requests
 import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  constructor(private auth: Auth, private router: Router) {}
+  private backendUrl = 'http://localhost:3000';  // Your backend API URL
 
-  // Signup Method
-  signup(email: string, password: string): Observable<void> {
+  constructor(private http: HttpClient, private router: Router) {}
+
+  // Signup Method - Send signup request to backend
+  signup(email: string, password: string): Observable<any> {
     return new Observable((observer) => {
-      createUserWithEmailAndPassword(this.auth, email, password)
-        .then(() => {
+      this.http.post(`${this.backendUrl}/api/users/signup`, { email, password }).subscribe({
+        next: (response) => {
           localStorage.setItem('isLoggedIn', 'true');
           this.router.navigate(['/courses']);
-          observer.next(); // emit success
+          observer.next(response); // emit success response
           observer.complete();
-        })
-        .catch((error: any) => {
+        },
+        error: (error) => {
           let errorMessage = 'An error occurred during signup. Please try again.';
-  
-          // Check specific Firebase error codes
-          if (error && error.code) {
-            switch (error.code) {
-              case 'auth/email-already-in-use':
-                errorMessage = 'An account with this email already exists.';
-                break;
-              case 'auth/invalid-email':
-                errorMessage = 'The email address is not valid.';
-                break;
-              case 'auth/weak-password':
-                errorMessage = 'Password should be at least 6 characters.';
-                break;
-              case 'auth/invalid-credential':
-                errorMessage = 'Invalid credentials provided.';
-                break;
-              default:
-                errorMessage = error.message || errorMessage;
-                break;
-            }
-          } else if (error && error.message) {
-            // If error doesn't have a code, use the message
-            errorMessage = error.message;
+          if (error.error && error.error.error) {
+            errorMessage = error.error.error;
           }
-  
-          // Do not log sensitive error (like account already exists)
-          if (error.code !== 'auth/email-already-in-use') {
-            console.error("Signup Error:", error); // Log the error only if it's not the 'email already in use' error
-          }
-  
           observer.error(errorMessage); // emit error with custom message
-        });
+        }
+      });
     });
   }
-  
-  // Login Method
-  login(email: string, password: string): Observable<void> {
+
+  // Login Method - Send login request to backend
+  login(email: string, password: string): Observable<any> {
     return new Observable((observer) => {
-      signInWithEmailAndPassword(this.auth, email, password)
-        .then(() => {
+      this.http.post(`${this.backendUrl}/api/users/login`, { email, password }).subscribe({
+        next: (response) => {
           localStorage.setItem('isLoggedIn', 'true');
           this.router.navigate(['/courses']);
-          observer.next(); // emit success
+          observer.next(response); // emit success response
           observer.complete();
-        })
-        .catch((error: any) => {
+        },
+        error: (error) => {
           let errorMessage = 'An error occurred during login. Please try again.';
-  
-          // Map Firebase error codes to user-friendly messages
-          if (error && error.code) {
-            switch (error.code) {
-              case 'auth/user-not-found':
-                errorMessage = 'No account found with this email address.';
-                break;
-              case 'auth/wrong-password':
-                errorMessage = 'Incorrect password. Please try again.';
-                break;
-              case 'auth/invalid-email':
-                errorMessage = 'The email address is not valid.';
-                break;
-              case 'auth/invalid-credential':
-                errorMessage = 'Invalid credentials provided.';
-                break;
-              default:
-                errorMessage = error.message || errorMessage;
-                break;
-            }
-          } else if (error && error.message) {
-            // Use the message from Firebase if no error code is available
-            errorMessage = error.message;
+          if (error.error && error.error.error) {
+            errorMessage = error.error.error;
           }
-  
-          observer.error(errorMessage); // Emit the error message for the component to display
-        });
+          observer.error(errorMessage); // emit error with custom message
+        }
+      });
     });
   }
-  
-  // Logout Method
+
+  // Logout Method - Send logout request to backend or just clear localStorage
   logout(): Observable<void> {
     return new Observable((observer) => {
-      signOut(this.auth)
-        .then(() => {
+      // Assuming you're logging out on the backend (clear session or JWT token)
+      this.http.post(`${this.backendUrl}/api/users/logout`, {}).subscribe({
+        next: (response) => {
+          // Clear the login status from localStorage
           localStorage.removeItem('isLoggedIn');
-          this.router.navigate(['/login']);
-          observer.next(); // emit success
+          this.router.navigate(['/login']);  // Redirect to login page after successful logout
+          observer.next();  // Emit success response
           observer.complete();
-        })
-        .catch((error) => {
-          observer.error('An error occurred during logout.');
-        });
+        },
+        error: (error) => {
+          // If there's an error during the logout process
+          localStorage.removeItem('isLoggedIn'); // Ensure to clear localStorage even if backend fails
+          this.router.navigate(['/login']); // Redirect to login page
+          observer.error('An error occurred during logout.');  // Emit error
+        }
+      });
     });
   }
 

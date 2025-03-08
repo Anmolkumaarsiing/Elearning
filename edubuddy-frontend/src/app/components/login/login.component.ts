@@ -28,7 +28,7 @@ export class LoginComponent {
     if (this.loginForm.valid) {
       const { email, password } = this.loginForm.value;
 
-      // Call the login method from AuthService
+      // Call the login method from AuthService (backend request)
       this.authService.login(email, password).subscribe({
         next: () => {
           // Clear error message upon successful login
