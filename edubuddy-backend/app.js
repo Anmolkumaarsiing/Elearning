@@ -8,6 +8,7 @@ require('dotenv').config(); // Load environment variables from .env
 
 const app = express();
 
+
 // Middleware
 app.use(cors());
 app.use(bodyParser.json()); // Parse JSON request bodies
