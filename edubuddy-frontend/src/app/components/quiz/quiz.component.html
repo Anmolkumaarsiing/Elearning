@@ -1,0 +1,54 @@
+<div class="quiz-page">
+  <!-- Sidebar Navigation -->
+  <aside class="sidebar">
+    <h2 class="logo">EduBuddy</h2>
+    <nav class="nav-menu">
+      <a routerLink="/courses" routerLinkActive="active" class="nav-item">📚 Courses</a>
+      <a routerLink="/quiz" routerLinkActive="active" class="nav-item">📝 Quiz</a>
+    </nav>
+    <!-- Logout Button with distinct class -->
+    <button class="logout-btn" (click)="logout()">🔓 Logout</button> <!-- Logout Button -->
+  </aside>
+
+  <!-- Main Quiz Content -->
+  <div class="quiz-container">
+    <!-- Show Quiz Questions -->
+    <div *ngIf="!showResults">
+      <div *ngFor="let quiz of quizzes; let i = index" class="quiz-card">
+        <h3>{{ i + 1 }}. {{ quiz.question }}</h3>
+        <ul>
+          <li *ngFor="let option of [quiz.option1, quiz.option2, quiz.option3, quiz.option4]"
+              [class.correct]="isCorrectAnswer(i, option)"
+              [class.incorrect]="isIncorrectAnswer(i, option)">
+            <label>
+              <input type="radio" [name]="'question' + i" [value]="option" (change)="selectAnswer(i, option)" [disabled]="showResults">
+              {{ option }}
+            </label>
+          </li>
+        </ul>
+      </div>
+      
+      <button class="btn submit-btn" (click)="submitQuiz()">Submit Quiz</button>
+    </div>
+
+    <!-- Show Quiz Results -->
+    <div *ngIf="showResults" class="result-section">
+      <h2>🎉 Quiz Completed!</h2>
+      <p>You got <b>{{ correctAnswersCount }}</b> out of <b>{{ quizzes.length }}</b> correct.</p>
+      
+      <div class="quiz-review" *ngFor="let quiz of quizzes; let i = index">
+        <h3>{{ i + 1 }}. {{ quiz.question }}</h3>
+        <p><b>Your Answer:</b> 
+          <span [class.correct]="selectedAnswers[i] === quiz.correct_answer"
+                [class.incorrect]="selectedAnswers[i] !== quiz.correct_answer">
+            {{ selectedAnswers[i] || 'No Answer Selected' }}
+          </span>
+        </p>
+        <p><b>Correct Answer:</b> <span class="correct-answer">{{ quiz.correct_answer }}</span></p>
+        <p><b>Explanation:</b> {{ quiz.description }}</p>
+      </div>
+
+      <button class="btn restart-btn" (click)="restartQuiz()">Restart Quiz</button>
+    </div>
+  </div>
+</div>

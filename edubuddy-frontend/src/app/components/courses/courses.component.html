@@ -1,0 +1,26 @@
+<div class="course-page">
+  <!-- Sidebar Navigation -->
+  <aside class="sidebar">
+    <h2 class="logo">EduBuddy</h2>
+    <nav class="nav-menu">
+      <a routerLink="/courses" class="nav-item active">📚 Courses</a>
+      <a routerLink="/quiz" class="nav-item">📝 Quiz</a>
+    </nav>
+    <!-- Logout Button -->
+    <button (click)="onLogout()" class="logout-btn">🔓 Logout</button>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="course-content">
+    <div class="course-list">
+      <div *ngFor="let course of courses" class="course-card">
+        <img [src]="course.url_to_img" alt="Course Image" class="course-image">
+        <div class="course-details">
+          <h3>{{ course.unit_name }}</h3>
+          <p>Unit {{ course.unit_number }}</p>
+          <a [href]="course.drive_link" target="_blank" class="btn view-btn">📄 View Course PDF</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

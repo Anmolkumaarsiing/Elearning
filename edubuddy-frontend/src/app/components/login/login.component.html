@@ -1,0 +1,31 @@
+<app-header></app-header>
+
+<div class="auth-container">
+  <h2>Login to EduBuddy</h2>
+  <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+    <div class="input-container">
+      <input
+        type="email"
+        formControlName="email"
+        id="login-email"
+        name="email"
+        placeholder="Email"
+        autocomplete="email"
+        class="input-field"
+      />
+    </div>
+    <div class="input-container">
+      <input
+        type="password"
+        formControlName="password"
+        id="login-password"
+        name="password"
+        placeholder="Password"
+        autocomplete="current-password"
+        class="input-field"
+      />
+    </div>
+    <button type="submit" [disabled]="loginForm.invalid" class="submit-btn">Login</button>
+    <p *ngIf="errorMessage" class="error-message">{{ errorMessage }}</p>
+  </form>
+</div>
