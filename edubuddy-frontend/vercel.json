@@ -1,4 +1,11 @@
 {
+  "version": 2,
+  "builds": [
+    {
+      "src": "dist/edubuddy-frontend/**/*",
+      "use": "@vercel/static"
+    }
+  ],
   "rewrites": [
     {
       "source": "/:path*",
